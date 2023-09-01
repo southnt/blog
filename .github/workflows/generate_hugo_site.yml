@@ -1,0 +1,37 @@
+name: generate_site
+
+on:
+    push:
+        branches: 
+          - 'main'
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+              with:
+                submodules: true  # Fetch Hugo themes (true OR recursive)
+                fetch-depth: 1    # shallow clone with a history truncated
+
+            - name: Setup Hugo
+              uses: peaceiris/actions-hugo@v2
+              with:
+                  hugo-version: latest
+                  # Download (if necessary) and use Hugo extended version. Example: true
+                  extended: true # optional, default is false
+
+            - name: Build
+              run: hugo --minify
+
+            - name: Deploy
+              uses: peaceiris/actions-gh-pages@v3
+              # If you're changing the branch from main,
+              # also change the `main` in `refs/heads/main`
+              # below accordingly.
+              if: github.ref == 'refs/heads/main'
+              with:
+                # github_token: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+                publish_dir: ./public
